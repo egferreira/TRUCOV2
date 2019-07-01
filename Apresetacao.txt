@@ -1,0 +1,26 @@
+O game todo é funciona por tras de 3 jogadores
+Jogador 1 =  HUMANO
+Jogador 2 = BOT
+Jogador 3 = EMPATE
+
+Durante a execução, tem a variavel JogadorAtual, a mais importante de todas.
+Começa a execução, faz algo, chama a função TrocaJogador() que muda o valor do jogador atual
+
+Atualmente o BOT tá chamando envido, truco, retruco, vale4, aceitando, envido, truco, retruco, vale4, cantando os pontos, e nao cantando os pontos
+Alem de jogar cartas e fugir pro baralho
+
+A descricao do caso se da na variavel Description
+Um querry é feito a partir dela , na variavel __querry
+
+O game tem 5 estados>
+  Dando as cartas : 
+  Inicio : -> Rodada
+  Meio: -> Rodada
+  Final -> Rodada
+  Fim -> Arruma as variaveis e volta pra proxima
+  
+Bot e Humano Sao diferenciados por uma variavel boolean na inicialização do programa
+
+Todo o jogo se baseia na Classe Mesa e Jogador
+Mesa onde acontece todo o fluxo do jogo,
+Jogador aonde acontece todas as escolhas
