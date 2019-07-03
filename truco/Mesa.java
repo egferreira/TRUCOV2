@@ -110,9 +110,10 @@ public class Mesa {
             this.TrocaJogador();
             this.JogadorAtual.TrocaJogadasDisponiveis(Jogadas.ENVIDO); // Remove a possibilidade de chamar envido de quem ira aceitar ou nao     
             this.JogadorAtual.TrocaJogadasDisponiveis(Jogadas.JOGAR_CARTA); // Remove a possibilidade de chamar truco de quem ira aceitar ou nao
-            this.JogadorAtual.TrocaJogadasDisponiveis( Jogadas.TRUCO);
+            //this.JogadorAtual.TrocaJogadasDisponiveis( Jogadas.TRUCO);
             this.JogadorAtual.AddJogada(0, Jogadas.ACEITAR);
-            this.JogadorAtual.AddJogada(1, Jogadas.RECUSAR);    		                                    
+            this.JogadorAtual.AddJogada(1, Jogadas.RECUSAR);
+            
     		    		
     	} // FIM ENVIDO
     	
@@ -122,9 +123,18 @@ public class Mesa {
     		this.JogadorAtual.TrocaJogadasDisponiveis(Jogadas.RECUSAR);
     		this.JogadorAtual.AceitarEnvido();
     		this.TrocaJogador();
+    		
     		this.JogadorAtual.PrintCantarPontos();
     		
-    		this.Description.setPontosEnvidoHumano( this.JogadorAtual.PontosEnvido);
+    		if ( this.JogadorAtual.IsBot() == false)
+    		{
+    			this.Description.setPontosEnvidoHumano( this.JogadorAtual.PontosEnvido);
+    		}
+    		else if ( this.JogadorAtual.IsBot() == true)
+    		{
+    			this.Description.setPontosEnvidoRobo( this.JogadorAtual.PontosEnvido);
+    		}
+    		
     		
     		this.TrocaJogador();
     	}// Fim ACEITE ENVIDO
@@ -142,10 +152,10 @@ public class Mesa {
     		{// CAso quem aceitou tenha mais ou e o MAO da rodada
     			this.TrocaJogador();
     			this.JogadorAtual.PrintCantarPontos();
-    			this.JogadorAtual.Pontuacao += 1;
+    			this.JogadorAtual.Pontuacao += 2;
     		}else { 
     			this.JogadorAtual.PrintCantarPontos();
-    			this.JogadorAtual.Pontuacao += 1;
+    			this.JogadorAtual.Pontuacao += 2;
     		}
     		this.TrocaJogador();
     	} // Fim CANTAR
@@ -154,8 +164,9 @@ public class Mesa {
     	{
     		this.JogadorAtual.TrocaJogadasDisponiveis(Jogadas.CANTAR);
     		this.JogadorAtual.TrocaJogadasDisponiveis(Jogadas.E_BOM);
+    		this.JogadorAtual.AddJogada(0, Jogadas.JOGAR_CARTA);
     		this.TrocaJogador();
-    		this.JogadorAtual.Pontuacao += 1;
+    		this.JogadorAtual.Pontuacao += 2;
     	}// Fim EH BOM
     	
     	else if ( JogadaEscolhida == Jogadas.RECUSAR && JogadaDaMesa == Jogadas.ENVIDO)//===========================
@@ -166,6 +177,7 @@ public class Mesa {
     		this.Description.setQuemNegouEnvido( this.JogadorAtual.GetId());
     		TrocaJogador();
     		this.JogadorAtual.Pontuacao +=1;
+    		
     	} // FIm RECUSA ENVIDO
     	
     	else if ( JogadaEscolhida == Jogadas.JOGAR_CARTA)//========================================================= 
@@ -189,7 +201,14 @@ public class Mesa {
     	
         else if ( JogadaEscolhida == Jogadas.FLOR)//================================================================
         {
-          if (JogadorAtual.VerificaFlor()) JogadorAtual.Pontuacao += 3;          
+          if (JogadorAtual.VerificaFlor()) JogadorAtual.Pontuacao += 3;
+          // Nao pode chamar envido se flor foi chamada
+          if ( this.JogadorAtual.JogadasDisponiveis.contains( Jogadas.ENVIDO)) 
+          {
+        	  this.JogadorAtual.TrocaJogadasDisponiveis( Jogadas.ENVIDO);
+        	  Description.setQuemFlor( this.JogadorAtual.GetId());
+          }         
+          
         } // Fim Flor
     	
         else if ( JogadaEscolhida == Jogadas.FUGIR)//===============================================================
@@ -284,6 +303,9 @@ public class Mesa {
         	ValorNoPote -= 1;
             FimDaEtapa = true; // Acaba a estapa
             RodadaAtual = Rodada.FIM;
+            this.TrocaJogador();
+            this.JogadorGanhador = this.JogadorAtual;
+            this.TrocaJogador();
             
         }// Fim RECUSATRUCO RETRUCO E VALE4
     }
@@ -399,6 +421,7 @@ public class Mesa {
 	    	{
 	    		case DANDO_CARTAS:
 	    			System.out.println("\n \n \n \n Dando Cartas ...");
+	    			JogadorAtual = MaoDaRodada;
 	    			MaoDaRodada.ReceberCartas( baralho.DarCarta());    			
 	    			PeDaRodada.ReceberCartas ( baralho.DarCarta());
 	    			MaoDaRodada.ReceberCartas( baralho.DarCarta());    			
@@ -409,6 +432,7 @@ public class Mesa {
                     PeDaRodada.CalculaEnvido ();                                                                              
                                         
                     this.Description = new TrucoDescription();
+                    
                     Description.setJogadorMao(this.MaoDaRodada.GetId());                   
                     Description.setCartaAltaRobo (this.JogadorBOT.GetCartaAlta());
                     Description.setCartaMediaRobo(this.JogadorBOT.GetCartaMedia());
@@ -418,6 +442,7 @@ public class Mesa {
 	    			// DEBUG
 	    			AtualizaDescriptionDoJogo( -1, GanhadoresDasRodadas);
 	    			//this.MostraJogo();
+	    			VerificaFinalDeJogo();
 	    			break;
 	    			
 	    		case INICIAL:
@@ -447,6 +472,7 @@ public class Mesa {
 	    			
 	    			
 	    			AtualizaDescriptionDoJogo( 0, GanhadoresDasRodadas);
+	    			VerificaFinalDeJogo();
 	    			break;
 	    			
 	    		case MEIO:
@@ -496,6 +522,7 @@ public class Mesa {
 	    			
 	    			
 	    			AtualizaDescriptionDoJogo( 1, GanhadoresDasRodadas);
+	    			VerificaFinalDeJogo();
 	    			break;
 	    			
 	    		case FINAL:
@@ -578,7 +605,8 @@ public class Mesa {
     	System.out.println(" Mao da rodada :" + this.MaoDaRodada);
     	System.out.println(" Ultima Escolha BOT :" + this.JogadorBOT.UltimaEscolha );
     	System.out.println(" Jogadas Disponiveis BOT :" + this.JogadorBOT.PrintJogadas() );
-    	
+    	System.out.println(" Valor no pote: " + this.ValorNoPote);
+    	System.out.println(" Rodada Atual " + this.RodadaAtual.toString());
     	System.out.println("\n\n"); 
     	    	
     	

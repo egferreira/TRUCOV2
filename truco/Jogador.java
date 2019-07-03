@@ -8,6 +8,8 @@ package truco;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 import CbrQuerys.CBR;
@@ -36,6 +38,15 @@ public class Jogador {
     public int CartaAlta;
     public int CartaMedia;
     public int CartaBaixa;
+    
+    public List <String> FrasesFlor = Arrays.asList(" Atirei uma pedra por cima da vacaria\n Deu no cravo, deu na rosa\n Deu na FLOR que eu queria",
+    												" Sinto um vento lá de fora\n Canto FLOR e vou-me embora",
+    												" Eu vinha de Santiago\n Juntinho com meu amor\n Parei na beira da estrada\n Pra colher um ramo de FLOR",
+    												" Eu tinha uma vaquinha\n Que se arrastava de pança\n Dava 33 litros de leite\n e era uma FLOR de mansa",
+    												" Pra pintar uma china Minha\n Não tem pinceis nem pintor\n Nem todo o meu jardim\n Se compara com minha FLOR",
+    												" Dormi fora de casa\n Esqueci meu cobertor\n Bateu um vento na roseira\n Que me tapou todo de FLOR",
+    												" Marrequinha da lagoa\n Bate a asa e não afunda\n Eu gosto de mulher gorda\n Que tenha graxa na bunda\n E seja FLOR de vagabunda",
+    												" Flor" ); 
     
     
     public Jogador(int id) {
@@ -195,9 +206,15 @@ public class Jogador {
     public boolean VerificaFlor() {
         if(this.Mao.size() < 2) return false; // caso ja tenha jgoado, nao pode chamar
         if(this.Mao.get(0).GetNaipe() == this.Mao.get(1).GetNaipe() &&
-           this.Mao.get(1).GetNaipe() == this.Mao.get(2).GetNaipe()){
+           this.Mao.get(1).GetNaipe() == this.Mao.get(2).GetNaipe())        
+        {        
+        	System.out.println("*****");
+        	System.out.println(this.FrasesFlor.get(new Random().nextInt(FrasesFlor.size())));
+        	System.out.println("*****");
             return true;
-        }else{
+        }
+        else
+        {                	
             return false;
         }
     }
@@ -262,6 +279,95 @@ public class Jogador {
     			    			    			    			    			
     			// Verifica a jogada que o BOT realizara
     			
+    			
+    			// Caso truco tenha sido chamado
+    			if ( JogadaDaMesa == Jogadas.TRUCO)
+    			{
+    				// Aceitar Truco
+        			if ( Case.getQuandoTruco() == RodadaToInt && Description.getQuemTruco() != this.GetId() && this.JogadasDisponiveis.contains(Jogadas.ACEITAR))
+        			{
+        				this.UltimaEscolha = Jogadas.ACEITAR;
+        				this.TrocaJogadasDisponiveis(Jogadas.ACEITAR);    				
+        			}
+        			// CHAMAR RETRUCO
+        			else if ( Case.getQuandoRetruco() == RodadaToInt && this.JogadasDisponiveis.contains(Jogadas.RETRUCO))
+        			{
+        				this.UltimaEscolha = Jogadas.RETRUCO;
+        				this.TrocaJogadasDisponiveis(Jogadas.RETRUCO);
+        				Description.setQuemRetruco( this.GetId());
+        			}
+        			else // Recusar Truco
+        			{
+        				this.UltimaEscolha = Jogadas.RECUSAR;
+        				this.TrocaJogadasDisponiveis(Jogadas.RECUSAR);        				
+        			}
+        			
+    			}
+    			// CAso retruco tenha sido cahamado
+    			else if ( JogadaDaMesa == Jogadas.RETRUCO)
+    			{
+    				// Aceitar REtruco
+    				if ( Case.getQuandoRetruco() == RodadaToInt && Description.getQuemRetruco() != this.GetId() && this.JogadasDisponiveis.contains(Jogadas.ACEITAR))
+    				{
+    					this.UltimaEscolha = Jogadas.ACEITAR;
+        				this.TrocaJogadasDisponiveis(Jogadas.ACEITAR);
+    				}
+    				// CHAMAR VALE 4
+        			else if ( Case.getQuandoValeQuatro() == RodadaToInt && this.JogadasDisponiveis.contains(Jogadas.VALE4))
+        			{
+        				this.UltimaEscolha = Jogadas.VALE4;
+        				this.TrocaJogadasDisponiveis(Jogadas.VALE4);
+        				Description.setQuemValeQuatro(this.GetId());
+        			}
+        			else // REcusar Retruco 
+        			{
+        				this.UltimaEscolha = Jogadas.RECUSAR;
+        				this.TrocaJogadasDisponiveis(Jogadas.RECUSAR);
+        			}
+    			}
+    			else if ( JogadaDaMesa == Jogadas.VALE4)
+    			{
+    				// Aceitar Vale 4
+    				if ( Case.getQuandoValeQuatro() == RodadaToInt && Description.getQuemValeQuatro() != this.GetId() && this.JogadasDisponiveis.contains(Jogadas.ACEITAR))
+    				{
+    					this.UltimaEscolha = Jogadas.ACEITAR;
+        				this.TrocaJogadasDisponiveis(Jogadas.ACEITAR);
+    				}
+    				else // REcusa o VAle 4 
+    				{
+    					this.UltimaEscolha = Jogadas.RECUSAR;
+        				this.TrocaJogadasDisponiveis(Jogadas.RECUSAR);        			
+    				}
+    			}
+    			
+    			else if ( JogadaDaMesa == Jogadas.ENVIDO)
+    			{
+    				if ( this.JogadasDisponiveis.contains( Jogadas.ACEITAR) || this.JogadasDisponiveis.contains( Jogadas.RECUSAR)) 
+        			{    					
+    					// Aceita Envido
+        				if ( Description.getQuemPediuEnvido() != this.GetId() && Case.getQuemGanhouEnvido() != null )
+        				{
+        					// Verifica se no caso esse jogador foi o ganhador
+        					if (  Case.getQuemGanhouEnvido() == this.GetId()) 
+        					{
+        						this.UltimaEscolha = Jogadas.ACEITAR;
+        						this.TrocaJogadasDisponiveis( Jogadas.ACEITAR);
+        					}
+        					else // Caso considera mais nao vai ganhar recusa
+        					{ 
+        						this.UltimaEscolha = Jogadas.RECUSAR;
+                				this.TrocaJogadasDisponiveis( Jogadas.RECUSAR);
+        					}
+        				}
+        				else// Recusa Envido
+        				{        					
+        					this.UltimaEscolha = Jogadas.RECUSAR;
+            				this.TrocaJogadasDisponiveis( Jogadas.RECUSAR);
+        				}
+        			}
+    				
+    			}
+    			    			
     			// FUGIR
     			if ( Case.getQuandoBaralho() != null && Case.getQuandoBaralho() == RodadaToInt)
     			{
@@ -269,7 +375,7 @@ public class Jogador {
         			this.TrocaJogadasDisponiveis(Jogadas.FUGIR);
         			Description.setQuemBaralho( this.GetId());        			
     			} 
-    			
+    			// Chamar FLor
     			else if ( this.JogadasDisponiveis.contains(Jogadas.FLOR) && Case.getQuemFlor () != null && this.VerificaFlor() == true )
     			{
     				this.UltimaEscolha = Jogadas.FLOR;
@@ -282,25 +388,8 @@ public class Jogador {
     				this.UltimaEscolha = Jogadas.ENVIDO;
     				this.TrocaJogadasDisponiveis( Jogadas.ENVIDO);
     				Description.setQuemPediuEnvido( this.GetId());
-    			}
-    			// Aceitar Envido           /     // Recusa Envido
-    			else if ( this.JogadasDisponiveis.contains( Jogadas.ACEITAR) || this.JogadasDisponiveis.contains( Jogadas.RECUSAR) && JogadaDaMesa == Jogadas.ENVIDO) 
-    			{
-    				if (Description.getQuemPediuEnvido() != this.GetId() && Case.getQuemGanhouEnvido() != null )
-    				{
-    					if (  Case.getQuemGanhouEnvido() == this.GetId()) 
-    					{
-    						this.UltimaEscolha = Jogadas.ACEITAR;
-    						this.TrocaJogadasDisponiveis( Jogadas.ACEITAR);
-    					}
-    				}
-    				else    			// Recusa Envido
-    				{
-    					this.UltimaEscolha = Jogadas.RECUSAR;
-        				this.TrocaJogadasDisponiveis( Jogadas.RECUSAR);
-    				}
-    			}
-
+    			}    			
+    			
  
     			// Cantar os pontos    			
     			else if ( this.JogadasDisponiveis.contains( Jogadas.CANTAR)  )
@@ -320,46 +409,14 @@ public class Jogador {
     				Description.setQuemEscondeuPontosEnvido( this.GetId());
     			}
     			// CHAMAR TRUCO
-    			else if ( Case.getQuandoTruco() == RodadaToInt && this.JogadasDisponiveis.contains(Jogadas.TRUCO))
-    			{
+    			else if ( Case.getQuandoTruco() == RodadaToInt && this.JogadasDisponiveis.contains(Jogadas.TRUCO) && JogadaDaMesa != Jogadas.ENVIDO)
+    			{	
     				this.UltimaEscolha = Jogadas.TRUCO;
     				this.TrocaJogadasDisponiveis(Jogadas.FUGIR);
     				Description.setQuemTruco(this.GetId());
     			}
     			
-    			// CHAMAR RETRUCO
-    			else if ( Case.getQuandoRetruco() == RodadaToInt && this.JogadasDisponiveis.contains(Jogadas.RETRUCO))
-    			{
-    				this.UltimaEscolha = Jogadas.RETRUCO;
-    				this.TrocaJogadasDisponiveis(Jogadas.RETRUCO);
-    				Description.setQuemRetruco(this.GetId());
-    			}
-    			
-    			// CHAMAR VALE 4
-    			else if ( Case.getQuandoValeQuatro() == RodadaToInt && this.JogadasDisponiveis.contains(Jogadas.VALE4))
-    			{
-    				this.UltimaEscolha = Jogadas.VALE4;
-    				this.TrocaJogadasDisponiveis(Jogadas.VALE4);
-    				Description.setQuemValeQuatro(this.GetId());
-    			}
-    			
-    			// Aceitar Truco
-    			else if ( Case.getQuandoTruco() == RodadaToInt && Description.getQuemTruco() != this.GetId() && this.JogadasDisponiveis.contains(Jogadas.ACEITAR))
-    			{
-    				this.UltimaEscolha = Jogadas.ACEITAR;
-    				this.TrocaJogadasDisponiveis(Jogadas.ACEITAR);    				
-    			}
-    			
-    			// Recusar Truco // REturoc // Vale 4
-    			else if ( (Description.getQuemTruco()      != null && Description.getQuemTruco()      != this.GetId() && Case.getQuandoTruco()      == 0 ||    
-    					   Description.getQuemRetruco()    != null && Description.getQuemRetruco()    != this.GetId() && Case.getQuandoRetruco()    == 0 ||
-    					   Description.getQuemValeQuatro() != null && Description.getQuemValeQuatro() != this.GetId() && Case.getQuandoValeQuatro() == 0 ) 
-    					 && this.JogadasDisponiveis.contains(Jogadas.RECUSAR) )
-    			{
-    				this.UltimaEscolha = Jogadas.RECUSAR;
-    				this.TrocaJogadasDisponiveis(Jogadas.RECUSAR);
-    			}    			
-    			    			
+    			// Só joga carta    			    			    			    			    			    		
     			else if (this.JogadasDisponiveis.contains(Jogadas.JOGAR_CARTA))
     			{    				
     				this.UltimaEscolha = Jogadas.JOGAR_CARTA;
@@ -375,8 +432,8 @@ public class Jogador {
     		}
     		catch ( Exception e) 
     		{
-    			e.printStackTrace();
-    			System.out.println("\n\n\n ERRRRROUUUUU \n\n\n");
+    			// e.printStackTrace();
+    			//System.out.println("\n\n\n ERRRRROUUUUU \n\n\n");
     			this.UltimaEscolha = Jogadas.JOGAR_CARTA;
         		this.TrocaJogadasDisponiveis(Jogadas.JOGAR_CARTA);
     		} 
